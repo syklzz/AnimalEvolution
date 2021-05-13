@@ -1,0 +1,113 @@
+G = 6.67e-11
+f <- function(x){
+  if(x > 1 || x <= 2){
+    return(4*pi*G)
+  }
+  else{
+    return(0)
+  }
+}
+
+a = 0
+u_a = 5
+b = 3
+u_b = 4
+n = 15
+
+shift <- function(x) (-1/3)*x + 5
+shift_derivative <- function(x) (-1/3)
+
+B <- matrix(rep(0, times = (n-1)*(n-1)), nrow = n-1, ncol = n-1 )
+U <- rep(0, times = n-1)
+L <- rep(0, times = n-1)
+
+x <- rep(0, times = n + 1)
+y <- rep(0, times = n + 1)
+
+
+count_x <- function(x){
+  for(i in 1:(n+1)){
+    x[i] <- (i-1)*(b-a)/n
+  }
+  return(x)
+}
+
+e <- function(i){ 
+  func <- function(z){
+    if(z > x[i] && z < x[i+2] ){
+      return(1-abs(n*z/(b-a)-i))
+    }
+    else{
+      return(0)
+    }
+  }
+  return(func)
+}
+
+e_derivative <- function(i){
+  func <- function(z){
+    if (z < x[i+1] && x[i] <= z ){ 
+      return(n/(b-a))
+    }
+    else if(z < x[i+2] && x[i+1] <= z ){
+      return(-n/(b-a))
+    }
+    else{
+      return(0)
+    }
+  }
+  return(func)
+}
+
+count_B <- function(B){
+  for(i in 1:(n-1)){
+    for(j in 1:(n-1)){
+      f <- function(x) e_derivative(i)(x) * e_derivative(j)(x)
+      f <- Vectorize(f)
+      B[i,j] = -integrate(f, lower = a, upper = b)$value
+    }
+  }
+  return(B)
+}
+
+count_L <- function(L){ 
+  for(i in 1:(n-1)){
+      h <- function(x) e(i)(x) * f(x)
+      h <- Vectorize(f)
+      g <- function(x) e_derivative(i)(x) * shift_derivative(x)
+      g <- Vectorize(g)
+      L[i] = integrate(h, lower = a, upper = b)$value - integrate(g, lower = a, upper = b)$value
+  }
+  return(L)
+}
+
+count_y <- function(y){ 
+  y[1] = u_a
+  for(i in 2:n){ 
+    for(j in 1:(n-1)){
+      y[i] <- y[i] + U[j]*e(j)(x[j])
+    }
+    y[i] <- y[i] + shift(x[i])
+  }
+  y[n+1] = u_b
+  return(y)
+}
+
+
+x <- count_x(x)
+x
+
+B <- count_B(B)
+B
+
+L <- count_L(L)
+L
+
+U <- solve(B, L)
+U
+
+y <- count_y(y)
+y
+
+plot(x, y, type= 'l')
+
