@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class MapVisualization extends JPanel {
-
     private final IWorldMap map;
     private int width;
     private int height;
@@ -38,7 +37,6 @@ public class MapVisualization extends JPanel {
         this.UpperJungleCoord = this.map.getUpperJungleCoord();
         this.jungleWidth = UpperJungleCoord.x - LowerJungleCoord.x;
         this.jungleHeight = UpperJungleCoord.y - LowerJungleCoord.y;
-
     }
 
     public int getScaledValue(int n){
@@ -55,14 +53,12 @@ public class MapVisualization extends JPanel {
         g.setColor(new Color(0, 204, 0));
         g.fillRect(LowerJungleCoord.x * scale, LowerJungleCoord.y * scale, (jungleWidth+1) * scale, (jungleHeight+1) * scale);
 
-
         for (Map.Entry<Vector2d, Plant> item : this.map.getPlants().entrySet()) {
             Vector2d key = item.getKey();
             g.setColor(new Color(0,153,76));
             int x = key.x;
             int y = key.y;
             g.fillRect(x*scale,y*scale,scale,scale);
-
         }
 
         for (Map.Entry<Vector2d, Set<Animal>> item : this.map.getAnimals().entrySet()){
@@ -80,7 +76,6 @@ public class MapVisualization extends JPanel {
                 }
                 break;
             }
-
         }
 
         g.setColor(new Color(203, 246, 86));
@@ -107,7 +102,5 @@ public class MapVisualization extends JPanel {
         g.drawOval(80,320,10,10);
         g.setColor(Color.black);
         g.drawString("Animals with dominant genotype",91,330);
-
     }
-
 }

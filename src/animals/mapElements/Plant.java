@@ -5,13 +5,10 @@ import animals.map.IObserver;
 import java.util.ArrayList;
 
 public class Plant implements IElements{
-
     private final Vector2d position;
-    private final int energy;
     private final ArrayList<IObserver> observers = new ArrayList<>();
 
-    public Plant(Vector2d position, int energy){
-        this.energy = energy;
+    public Plant(Vector2d position){
         this.position = position;
     }
 
@@ -35,5 +32,4 @@ public class Plant implements IElements{
     }
 
     public Vector2d getPosition(){ return this.position; }
-
 }

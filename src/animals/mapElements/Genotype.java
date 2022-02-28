@@ -39,7 +39,6 @@ public class Genotype {
         for(int i = split2; i < 32; i++){
             genesAmount[A.genes.get(i)] += 1;
         }
-
         this.genes = mutate(genesAmount);
     }
 
@@ -99,18 +98,16 @@ public class Genotype {
     }
 
     public String toString(){
-        StringBuffer res = new StringBuffer();
-        for(int i=0; i<genes.size(); i++){
-            res.append(genes.get(i));
+        StringBuilder res = new StringBuilder();
+        for (Integer gene : genes) {
+            res.append(gene);
         }
         return res.toString();
     }
-
 
     @Override
     public int hashCode() {
         return Arrays.hashCode(genesCounter);
     }
-
 }
 

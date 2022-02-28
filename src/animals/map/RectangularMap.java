@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class RectangularMap implements IWorldMap, IObserver {
-
     private final Vector2d lowerJungleCoord;
     private final Vector2d upperJungleCoord;
     private final Statistics statistics;
@@ -120,7 +119,6 @@ public class RectangularMap implements IWorldMap, IObserver {
 
     public Statistics getStatistics(){ return this.statistics;}
 
-
     public Vector2d adjustPosition(Vector2d position) {
         int x = position.x;
         int y = position.y;
@@ -141,12 +139,6 @@ public class RectangularMap implements IWorldMap, IObserver {
 
     public boolean isInJungle(Vector2d position){
         position = adjustPosition(position);
-        if (position.follows(this.lowerJungleCoord) && position.precedes(this.upperJungleCoord)){
-            return true;
-        }
-        return false;
+        return position.follows(this.lowerJungleCoord) && position.precedes(this.upperJungleCoord);
     }
-
-
-
 }

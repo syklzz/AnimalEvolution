@@ -13,45 +13,29 @@ public enum MapDirection {
     NORTHEAST;
 
     public MapDirection next() {
-        switch (this) {
-            case NORTH: return NORTHEAST;
-            case NORTHWEST: return NORTH;
-            case SOUTH: return SOUTHWEST;
-            case SOUTHWEST: return WEST;
-            case WEST: return NORTHWEST;
-            case SOUTHEAST: return SOUTH;
-            case EAST: return SOUTHEAST;
-            case NORTHEAST: return EAST;
-        }
-        return null;
-    }
-
-    public MapDirection previous(){
-        switch (this) {
-            case NORTH: return NORTHWEST;
-            case NORTHWEST: return WEST;
-            case SOUTH: return SOUTHEAST;
-            case SOUTHWEST: return SOUTH;
-            case WEST: return SOUTHWEST;
-            case SOUTHEAST: return EAST;
-            case EAST: return NORTHEAST;
-            case NORTHEAST: return NORTH;
-        }
-        return null;
+        return switch (this) {
+            case NORTH -> NORTHEAST;
+            case NORTHWEST -> NORTH;
+            case SOUTH -> SOUTHWEST;
+            case SOUTHWEST -> WEST;
+            case WEST -> NORTHWEST;
+            case SOUTHEAST -> SOUTH;
+            case EAST -> SOUTHEAST;
+            case NORTHEAST -> EAST;
+        };
     }
 
     public Vector2d toUnitVector(){
-        switch (this) {
-            case NORTH: return new Vector2d(0,1);
-            case NORTHWEST: return new Vector2d(-1,1);
-            case SOUTH: return new Vector2d(0,-1);
-            case SOUTHWEST: return new Vector2d(-1,-1);
-            case WEST: return new Vector2d(-1,0);
-            case SOUTHEAST: return new Vector2d(1,-1);
-            case EAST: return new Vector2d(1,0);
-            case NORTHEAST: return new Vector2d(1,1);
-        }
-        return null;
+        return switch (this) {
+            case NORTH -> new Vector2d(0, 1);
+            case NORTHWEST -> new Vector2d(-1, 1);
+            case SOUTH -> new Vector2d(0, -1);
+            case SOUTHWEST -> new Vector2d(-1, -1);
+            case WEST -> new Vector2d(-1, 0);
+            case SOUTHEAST -> new Vector2d(1, -1);
+            case EAST -> new Vector2d(1, 0);
+            case NORTHEAST -> new Vector2d(1, 1);
+        };
     }
 
     public static MapDirection getOrientation(){

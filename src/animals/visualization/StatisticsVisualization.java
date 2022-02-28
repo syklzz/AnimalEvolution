@@ -10,7 +10,6 @@ import java.awt.*;
 import java.util.Set;
 
 public class StatisticsVisualization extends JPanel {
-
     private final IWorldMap map;
     private final Statistics stats;
 
@@ -55,7 +54,5 @@ public class StatisticsVisualization extends JPanel {
             g.drawString("Day of death: " + stats.getFollowedAnimal().getDeathDay(), 0,280);
             g.drawString("Days under observation: " + stats.getDaysUnderObservation(), 0,300);
         }
-
     }
-
 }

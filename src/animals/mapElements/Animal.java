@@ -6,7 +6,6 @@ import java.awt.*;
 import java.util.*;
 
 public class Animal implements IElements{
-
     private final int birth;
     private int death = -1;
     private int energy;
@@ -45,32 +44,31 @@ public class Animal implements IElements{
         this.orientation = genotype.newOrientation(this.orientation);
         Vector2d oldPosition = this.position;
         Vector2d newPosition = this.position.add(this.orientation.toUnitVector());
-        positionChanged(oldPosition, newPosition, this);
+        positionChanged(oldPosition, newPosition);
         this.position = newPosition;
     }
 
-
-    public void positionChanged(Vector2d oldPosition, Vector2d newPosition, Object o){
-        for (int i =0; i < observers.size(); i++){
-            this.observers.get(i).positionChanged(oldPosition, newPosition, this);
+    public void positionChanged(Vector2d oldPosition, Vector2d newPosition){
+        for (IObserver observer : observers) {
+            observer.positionChanged(oldPosition, newPosition, this);
         }
     }
 
     public void positionRemoved(){
-        for (int i =0; i < observers.size(); i++){
-            this.observers.get(i).positionRemoved(this, this.position);
+        for (IObserver observer : observers) {
+            observer.positionRemoved(this, this.position);
         }
     }
 
     public void energyChanged(int n){
-        for (int i = 0; i < observers.size(); i++){
-            this.observers.get(i).energyChanged(n);
+        for (IObserver observer : observers) {
+            observer.energyChanged(n);
         }
     }
 
     public void childrenChanged(){
-        for (int i = 0; i < observers.size(); i++){
-            this.observers.get(i).childrenChanged();
+        for (IObserver observer : observers) {
+            observer.childrenChanged();
         }
     }
 
@@ -79,10 +77,8 @@ public class Animal implements IElements{
     }
 
     public void removeObserver(IObserver observer){
-        int index = this.observers.indexOf(observer);
-        this.observers.remove(index);
+        this.observers.remove(observer);
     }
-
 
     public Vector2d getPosition(){ return this.position; }
 
@@ -140,7 +136,5 @@ public class Animal implements IElements{
             return new Color(153,76,0);
         }
         return new Color(51,25,0);
-
     }
-
 }

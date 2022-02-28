@@ -5,114 +5,57 @@ import animals.mapElements.Vector2d;
 import animals.visualization.Visualization;
 import animals.mapElements.Animal;
 import animals.map.IWorldMap;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.swing.*;
 import javax.swing.Timer;
 
 public class SimulationEngine implements IEngine {
-
     private final IWorldMap map;
-    private final IWorldMap map2;
-    int startEnergy;
-    int moveEnergy;
-    int plantsEnergy;
+    private final int startEnergy;
+    private final int moveEnergy;
+    private final int plantsEnergy;
+    private Visualization visualization;
+    private final Timer timer;
 
-    Visualization visualization;
-    Timer timer;
-    Timer timer2;
-    int delay;
-
-    JButton startButton;
-    JButton startButton2;
-    JButton stopButton;
-    JButton stopButton2;
-
-    public SimulationEngine(IWorldMap map, IWorldMap map2, int animalsNumber, int startEnergy, int moveEnergy, int plantsEnergy, int delay){
+    public SimulationEngine(IWorldMap map, int animalsNumber, int startEnergy, int moveEnergy, int plantsEnergy, int delay){
         this.map = map;
-        this.map2 = map2;
         this.startEnergy = startEnergy;
         this.moveEnergy = moveEnergy;
         this.plantsEnergy = plantsEnergy;
 
         placeAnimals(animalsNumber);
 
-        this.delay = delay;
-        this.timer = new Timer(delay, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(map.getStatistics().getAliveAnimalsCounter() == 0){
-                    timer.stop();
-                    return;
-                }
-                visualization.update();
-                removeDead(map);
-                moveAnimals(map);
-                eat(map);
-                reproduce(map);
-                addPlants(map);
-                map.getStatistics().updateOverallStatistics();
-                map.getStatistics().nextDay();
+        this.timer = new Timer(delay, e -> {
+            if(this.map.getStatistics().getAliveAnimalsCounter() == 0){
+                stopTimer();
+                return;
             }
+            visualization.update();
+            removeDead();
+            moveAnimals();
+            eat();
+            reproduce();
+            addPlants();
+            this.map.getStatistics().updateOverallStatistics();
+            this.map.getStatistics().nextDay();
         });
 
-        this.timer2 = new Timer(delay, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(map2.getStatistics().getAliveAnimalsCounter() == 0){
-                    timer2.stop();
-                    return;
-                }
-                visualization.update();
-                removeDead(map2);
-                moveAnimals(map2);
-                eat(map2);
-                reproduce(map2);
-                addPlants(map2);
-                map2.getStatistics().updateOverallStatistics();
-                map2.getStatistics().nextDay();
-            }
-        });
-
-        this.startButton = new JButton("Start");
-        this.startButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                timer.start();
-            }
-        });
-        this.startButton2 = new JButton("Start");
-        this.startButton2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                timer2.start();
-            }
-        });
-        this.stopButton = new JButton("Stop");
-        this.stopButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                timer.stop();
-            }
-        });
-        this.stopButton2 = new JButton("Stop");
-        this.stopButton2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                timer2.stop();
-            }
-        });
-
-        this.visualization = new Visualization(this.map, this.map2, startButton, startButton2, stopButton, stopButton2);
-
+        this.visualization = new Visualization(this.map, this);
     }
 
     public void run() {
         visualization.setFrame();
-        timer.start();
-        timer2.start();
     }
 
-    void removeDead(IWorldMap map){
+    public void stopTimer(){
+        timer.stop();
+    }
+
+    public void runTimer(){
+        timer.start();
+    }
+
+    void removeDead(){
         List<Animal> animalsToBeRemoved = new ArrayList<>();
         for (Map.Entry<Vector2d, Set<Animal>> item : map.getAnimals().entrySet()){
             Set<Animal> animals = item.getValue();
@@ -125,11 +68,11 @@ public class SimulationEngine implements IEngine {
         }
     }
 
-    void moveAnimals(IWorldMap map){
+    void moveAnimals(){
         List<Animal> animalsList = new ArrayList<>();
         for (Map.Entry<Vector2d, Set<Animal>> item : map.getAnimals().entrySet()){
             Set<Animal> animals = item.getValue();
-            for (Animal animal : animals) { animalsList.add(animal); }
+            animalsList.addAll(animals);
         }
         for(Animal animal : animalsList){
             animal.move();
@@ -137,7 +80,7 @@ public class SimulationEngine implements IEngine {
         }
     }
 
-    void eat(IWorldMap map){
+    void eat(){
         List<Plant> plantsToBeRemoved = new ArrayList<>();
         for (Map.Entry<Vector2d, Plant> item : map.getPlants().entrySet()){
             Vector2d key = item.getKey();
@@ -145,15 +88,12 @@ public class SimulationEngine implements IEngine {
 
             Set<Animal> animals = map.getAnimalsAt(key);
             if(animals != null) {
-
-                Animal A = animals.stream().max((a,b) -> Integer.compare(a.getEnergy(), b.getEnergy())).orElse(null);
+                Animal A = animals.stream().max(Comparator.comparingInt(Animal::getEnergy)).orElse(null);
                 int maxEnergy = A.getEnergy();
                 animals = animals.stream().filter(a -> a.getEnergy() == maxEnergy).collect(Collectors.toSet());
-
                 for (Animal animal : animals) {
                     animal.increaseEnergy(plantsEnergy / animals.size());
                 }
-
                 plantsToBeRemoved.add(plant);
             }
         }
@@ -162,7 +102,7 @@ public class SimulationEngine implements IEngine {
         }
     }
 
-    void reproduce(IWorldMap map){
+    void reproduce(){
         List<Animal> children = new ArrayList<>();
 
         for (Map.Entry<Vector2d, Set<Animal>> item : map.getAnimals().entrySet()){
@@ -173,13 +113,13 @@ public class SimulationEngine implements IEngine {
 
             if (animals2.size() > 1) {
 
-                Animal animal = animals2.stream().max((a,b) -> Integer.compare(a.getEnergy(), b.getEnergy())).orElse(null);
+                Animal animal = animals2.stream().max(Comparator.comparingInt(Animal::getEnergy)).orElse(null);
                 int maxEnergy = animal.getEnergy();
                 Random r = new Random();
                 Animal A;
                 Animal B;
 
-                if(animals2.stream().filter(a -> a.getEnergy() == maxEnergy).collect(Collectors.toList()).size() > 1){
+                if(animals2.stream().filter(a -> a.getEnergy() == maxEnergy).count() > 1){
                     animals2 = animals2.stream().filter(a -> a.getEnergy() == maxEnergy).collect(Collectors.toList());
                     int index = r.nextInt(animals2.size());
                     int index2 = r.nextInt(animals2.size());
@@ -190,13 +130,12 @@ public class SimulationEngine implements IEngine {
                 else{
                     A = animal;
                     animals2 = animals2.stream().filter(a -> a.getEnergy() != maxEnergy).collect(Collectors.toList());
-                    animal = animals2.stream().max((a,b) -> Integer.compare(a.getEnergy(), b.getEnergy())).orElse(null);
+                    animal = animals2.stream().max(Comparator.comparingInt(Animal::getEnergy)).orElse(null);
                     int maxEnergy2 = animal.getEnergy();
                     animals2 = animals2.stream().filter(a -> a.getEnergy() == maxEnergy2).collect(Collectors.toList());
                     int index = r.nextInt(animals2.size());
                     B = animals2.get(index);
                 }
-
 
                 List<Vector2d> surroundings = new ArrayList<>();
                 for (int i = -1; i <= 1; i++) {
@@ -208,7 +147,7 @@ public class SimulationEngine implements IEngine {
                     }
                 }
 
-                if (surroundings.stream().filter(a -> !map.isOccupied(a)).collect(Collectors.toList()).size() > 0) {
+                if (surroundings.stream().anyMatch(a -> !map.isOccupied(a))) {
                     surroundings = surroundings.stream().filter(a -> !map.isOccupied(a)).collect(Collectors.toList());
                 }
                 int index = r.nextInt(surroundings.size());
@@ -224,7 +163,7 @@ public class SimulationEngine implements IEngine {
         }
     }
 
-    void addPlants(IWorldMap map){
+    void addPlants(){
         Vector2d position;
         Random r = new Random();
         Vector2d lowerCoord = map.getLowerJungleCoord();
@@ -246,12 +185,11 @@ public class SimulationEngine implements IEngine {
                     position = new Vector2d(x, y);
                 } while (map.isOccupied(position));
 
-                Plant plant1 = new Plant(position, this.plantsEnergy);
+                Plant plant1 = new Plant(position);
                 map.place(plant1, position);
             }
             counter ++;
         }
-
         counter = 0;
 
         while(counter < 2) {
@@ -264,12 +202,11 @@ public class SimulationEngine implements IEngine {
                         position = new Vector2d(x, y);
                     } while (map.isInJungle(position));
                 } while (map.isOccupied(position));
-                Plant plant2 = new Plant(position, this.plantsEnergy);
+                Plant plant2 = new Plant(position);
                 map.place(plant2, position);
             }
             counter ++;
         }
-
     }
 
     void placeAnimals(int animalsAmount){
@@ -285,12 +222,7 @@ public class SimulationEngine implements IEngine {
                 position = new Vector2d(x ,y);
             }while(this.map.isOccupied(position));
             Animal animal = new Animal(position, this.startEnergy);
-            Animal animal2 = new Animal(position, this.startEnergy);
             this.map.place(animal, position);
-            this.map2.place(animal2, position);
         }
     }
-
-
 }
-

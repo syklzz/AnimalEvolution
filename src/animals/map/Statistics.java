@@ -39,12 +39,9 @@ public class Statistics {
 
     private boolean isRelated = false;
 
-
     public Statistics(IWorldMap map){
         this.map = map;
     }
-
-
 
     public Animal getFollowedAnimal() {
         return this.followedAnimal;
@@ -82,7 +79,7 @@ public class Statistics {
                     break;
                 }
                 else{
-                    isDescendant(A, (Animal)B.getChildren().get(i));
+                    isDescendant(A, B.getChildren().get(i));
                 }
             }
         }
@@ -92,15 +89,11 @@ public class Statistics {
         return this.day - this.observationStartDay;
     }
 
-
-
     public int getDay(){ return this.day;}
 
     public void nextDay(){
         this.day += 1;
     }
-
-
 
     public String getCurrentMaxGenotype(){
         if(getMaxGenotype(genotypes) == null){
@@ -135,9 +128,6 @@ public class Statistics {
         if(this.aliveAnimalsCounter == 0){ return 0;}
         return this.sumChildren/this.aliveAnimalsCounter;
     }
-
-
-
 
     public void onPositionChanged(Vector2d oldPosition, Vector2d newPosition){
         if(this.map.isInJungle(oldPosition)){
@@ -215,9 +205,6 @@ public class Statistics {
 
     public void onChildAddition(){ this.sumChildren += 1; }
 
-
-
-
     public void updateOverallStatistics(){
         this.overallAliveAnimals += this.aliveAnimalsCounter;
         this.overallPlants += this.plantsCounter;
@@ -262,8 +249,6 @@ public class Statistics {
         return getMaxGenotype(overallGenotypes).toString();
     }
 
-
-
     public Genotype getDominantGenotype(){
         Genotype maxGenotype = null;
         int maxGenotypeCounter = 0;
@@ -280,18 +265,14 @@ public class Statistics {
     }
 
     public void addGenotype(Genotype G, Map<Genotype, Integer> genotypes){
-        if(genotypes.get(G) == null){
-            genotypes.put(G, 0);
-        }
+        genotypes.putIfAbsent(G, 0);
         int amount = genotypes.get(G);
         genotypes.remove(G);
         genotypes.put(G, amount+1);
     }
 
     public void removeGenotype(Genotype G){
-        if(genotypes.get(G) == null){
-            genotypes.put(G, 0);
-        }
+        genotypes.putIfAbsent(G, 0);
         int amount = genotypes.get(G);
         genotypes.remove(G);
         if(amount > 1){
@@ -313,5 +294,4 @@ public class Statistics {
         }
         return maxGenotype;
     }
-
 }

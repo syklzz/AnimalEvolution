@@ -7,7 +7,6 @@ import animals.map.Statistics;
 import org.json.simple.JSONObject;
 
 public class CreateJsonDocument {
-
     private final Statistics stats;
     private final String fileName;
 
