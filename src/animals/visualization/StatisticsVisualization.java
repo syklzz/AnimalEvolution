@@ -47,7 +47,7 @@ public class StatisticsVisualization extends JPanel {
         g.drawString("Dominant genotype: " + stats.getCurrentMaxGenotype(), 0,160);
 
         if(stats.getFollowedAnimal() != null){
-            g.drawString("FOLLOWED ANIMAL:" , 0,200);
+            g.drawString("FOLLOWED ANIMAL" , 0,200);
             g.drawString("Genotype: " + stats.getFollowedAnimal().getGenotype(), 0,220);
             g.drawString("New children: " + stats.getFollowedAnimalChildren(), 0,240);
             g.drawString("New descendants: " + stats.getFollowedAnimalDescendants(), 0,260);
